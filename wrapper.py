@@ -7,15 +7,20 @@ import random
 from datetime import datetime
 from model.customer import Customer, MenuObservable
 from model.menu_of_the_day import MenuBuilder
-# Path Constants
-CONFIG_PATH = os.path.dirname(os.path.realpath(__file__))
-APP_PATH = os.path.abspath(os.path.join(CONFIG_PATH, '..'))
-pickle_name = CONFIG_PATH + "\\menu.pickle"
 
+def getPickle(name):
+    storage = os.path.join(os.getcwd(), 'storage')
+    pickle_files = os.listdir(storage)
+    if not name.endswith('.pickle'):
+        name = name + '.pickle'
+    if name in pickle_files:
+        pickle_path = os.path.join(storage, name)
+        return pickle_path
+    return False
 
 def add_subscriber(cust):
     try:
-        with open("subscribers.pkl", 'rb') as file:
+        with open(getPickle('subscribers'), 'rb') as file:
             obj = pickle.load(file)
             file.close()
     except:
@@ -27,7 +32,7 @@ def add_subscriber(cust):
         obj.add_observer(cust)
         print("Subscriber added Successfully....")
 
-    with open("subscribers.pkl", 'wb') as file :
+    with open(getPickle('subscribers'), 'wb') as file :
         pickle.dump(obj, file)
         file.close()
  
@@ -36,7 +41,7 @@ def add_subscriber(cust):
 
 def load_menus():
     try:
-        with open(pickle_name, 'rb') as file:
+        with open(getPickle('menu'), 'rb') as file:
             menus = pickle.load(file)
         return menus
     except FileNotFoundError:
@@ -82,7 +87,7 @@ def dump_data(menus, filename):
 def add_item_to_cart(item_add, qty):
     try:
         # Try to load the existing cart object
-        with open('cart.pkl', 'rb') as file:
+        with open(getPickle('cart'), 'rb') as file:
             cart = pickle.load(file)
     except FileNotFoundError:
         # If file doesn't exist, create a new cart object
@@ -103,7 +108,7 @@ def add_item_to_cart(item_add, qty):
         print("New Item Added")
         cart_dict[item_add] = qty
         
-    with open('cart.pkl', 'wb') as file:
+    with open(getPickle('cart'), 'wb') as file:
         pickle.dump(cart, file)
         print('Cart item added  and Saved Successfully')
     return True
@@ -111,13 +116,13 @@ def add_item_to_cart(item_add, qty):
 def make_cart_empty():
     try:
         # Try to load the existing cart object
-        with open('cart.pkl', 'rb') as file:
+        with open(getPickle('cart'), 'rb') as file:
             cart = pickle.load(file)
     except FileNotFoundError:
         # If file doesn't exist, create a new cart object
         cart = Cart()
     cart.orders = {}
-    with open('cart.pkl', 'wb') as file:
+    with open(getPickle('cart'), 'wb') as file:
         pickle.dump(cart, file)
         print('Item Added to cart Successfully')
     print("Cart got Empty")
@@ -126,7 +131,7 @@ def make_cart_empty():
 def remove_cart_item(item_to_delete):
     try:
         # Try to load the existing cart object
-        with open('cart.pkl', 'rb') as file:
+        with open(getPickle('cart'), 'rb') as file:
             cart = pickle.load(file)
     except FileNotFoundError:
         # If file doesn't exist, create a new cart object
@@ -138,7 +143,7 @@ def remove_cart_item(item_to_delete):
     for item, qty in cart_dict.items():
         if item_to_delete.name == item.name:
                 del cart_dict[item] 
-                with open('cart.pkl', 'wb') as file:
+                with open(getPickle('cart'), 'wb') as file:
                     pickle.dump(cart, file)
                     print('Cart item removed and Saved Successfully')
                 break
@@ -146,7 +151,7 @@ def remove_cart_item(item_to_delete):
 def cart_items():
     try:
         # Try to load the existing cart object
-        with open('cart.pkl', 'rb') as file:
+        with open(getPickle('cart'), 'rb') as file:
             cart = pickle.load(file)
     except FileNotFoundError:
         # If file doesn't exist, create a new cart object
@@ -175,7 +180,7 @@ def get_cart_item_names():
 def load_cart():
     try:
         # Try to load the existing cart object
-        with open('cart.pkl', 'rb') as file:
+        with open(getPickle('cart'), 'rb') as file:
             cart = pickle.load(file)
     except FileNotFoundError:
         # If file doesn't exist, create a new cart object
@@ -186,12 +191,12 @@ def load_cart():
 def push_orders(order):
 
     try:
-        with open('order.pkl', 'rb') as file:
+        with open(getPickle('order'), 'rb') as file:
             orders_list = pickle.load(file)
     except FileNotFoundError:
         orders_list = []
     orders_list.append(order)
-    with open('order.pkl', 'wb') as file:
+    with open(getPickle('order'), 'wb') as file:
         pickle.dump(orders_list, file)
         print('Order Added Successfully')
         file.close()
@@ -204,7 +209,7 @@ def create_order(cust_obj):
 
 def create_token():
     try:
-        with open("tokens.pickle", 'rb') as file:
+        with open(getPickle('tokens'), 'rb') as file:
            tokens =  pickle.load(file)
            file.close()
     except Exception:
@@ -216,7 +221,7 @@ def create_token():
     else:
         tokens.append(token)
 
-    with open ("tokens.pickle", 'wb') as file:
+    with open (getPickle('tokens'), 'wb') as file:
         pickle.dump(tokens, file)
         file.close()
     
@@ -271,7 +276,7 @@ def make_payment_for_order(payment_obj, new_order):
 def get_orders_list():
     try:
         # Try to load the existing cart object
-        with open('order.pkl', 'rb') as file:
+        with open(getPickle('order'), 'rb') as file:
             order_list = pickle.load(file)
             file.close()
         return order_list
@@ -457,7 +462,7 @@ def remove_order_data(key_to_remove: int):
     if key_to_remove in data:
         token = data[key_to_remove][0]
         try:
-            with open("tokens.pickle", 'rb') as file:
+            with open(getPickle('tokens'), 'rb') as file:
                 tokens =  pickle.load(file)
                 file.close()
         except Exception:
@@ -476,7 +481,7 @@ def remove_order_data(key_to_remove: int):
                 add_subscriber(value.customer)    
                 print(value)
                 break
-        with open('order.pkl', 'wb') as file:
+        with open(getPickle('order'), 'wb') as file:
             pickle.dump(orders_list, file)
             print('Order Added Successfully')
             file.close()
@@ -492,7 +497,7 @@ def remove_order_data(key_to_remove: int):
 # ------------------- Observer Pattern------------------------------------------
 def get_subscribers_data():
     try:
-        with open("subscribers.pkl", 'rb') as file:
+        with open(getPickle('subscribers'), 'rb') as file:
             subscribers = pickle.load(file)
             file.close()
     except:
@@ -503,7 +508,7 @@ def get_subscribers_data():
 def add_item_to_todayMenu(item_add, menu_type):
     
     try:
-        with open("todaymenu.pickle", 'rb') as file:
+        with open(getPickle('todaymenu'), 'rb') as file:
             builder = pickle.load(file)
     except Exception:
             builder = MenuBuilder()
@@ -511,7 +516,7 @@ def add_item_to_todayMenu(item_add, menu_type):
     menu_type_name = menu_type.capitalize()
     builder.add_to_menu(menu_type_name, item_add)
     try:
-        with open("todaymenu.pickle", 'wb') as file:
+        with open(getPickle('todaymenu'), 'wb') as file:
             builder = pickle.dump(builder, file)
     except Exception:
             print("Exception Occured")
@@ -522,7 +527,7 @@ def get_todaymenu():
     menu_types = ["Breakfast", "Lunch", "Snacks", "Dinner"]
     menus = {}
     try:
-        with open("todaymenu.pickle", 'rb') as file:
+        with open(getPickle('todaymenu'), 'rb') as file:
             builder = pickle.load(file)
     except Exception:
             builder = MenuBuilder()
@@ -538,13 +543,13 @@ def get_todaymenu():
 
 def remove_menu(item_remove):
     try:
-        with open("todaymenu.pickle", 'rb') as file:
+        with open(getPickle('todaymenu'), 'rb') as file:
             builder = pickle.load(file)
     except Exception:
             builder = MenuBuilder()
     builder.remove_menu(item_remove)
     try:
-        with open("todaymenu.pickle", 'wb') as file:
+        with open(getPickle('todaymenu'), 'wb') as file:
             builder = pickle.dump(builder, file)
     except Exception:
             print("Exception Occured")
