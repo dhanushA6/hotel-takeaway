@@ -1,26 +1,23 @@
 from flask import Flask, render_template, request, redirect, url_for, jsonify, session
 from flask_mail import Mail, Message
-from dotenv import load_dotenv
+from config import helper as hp
 from werkzeug.utils import secure_filename
 import wrapper as wp
 import os, uuid
-
-# Load env config
-load_dotenv()
 
 app = Flask(__name__)
 mail = Mail(app)
 
 # Configuration of mail
-app.config['MAIL_SERVER'] = os.getenv("MAIL_SERVER")
-app.config['MAIL_PORT'] = os.getenv("MAIL_PORT")
-app.config['MAIL_USERNAME'] = os.getenv("MAIL_USERNAME")
-app.config['MAIL_PASSWORD'] = os.getenv("MAIL_PASSWORD")
+app.config['MAIL_SERVER'] = hp.getMailConfig()['SERVER']
+app.config['MAIL_PORT'] = hp.getMailConfig()['PORT']
+app.config['MAIL_USERNAME'] = hp.getMailConfig()['USER']
+app.config['MAIL_PASSWORD'] = hp.getMailConfig()['PASS']
 app.config['MAIL_USE_TLS'] = False
 app.config['MAIL_USE_SSL'] = True
 mail = Mail(app)
 
-app.secret_key = os.getenv("APP_SECRET_KEY")
+app.secret_key = hp.getAppConfig()['SECRET_KEY']
 
 ################ App Routes ################
 @app.route('/')
